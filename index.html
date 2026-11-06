@@ -48,7 +48,7 @@
       <div class="flex justify-between items-end border-b border-darkborder pb-4">
         <div>
           <h1 class="text-2xl font-bold text-slate-100">企画ストック・ダッシュボード</h1>
-          <p class="text-sm text-slate-400 mt-1">既存ゲームの分析をストックし、アイデアが閃いたらいつでも考慮・企画書化へ進めます。</p>
+          <p class="text-sm text-slate-400 mt-1">既存ゲームの分析をストックし、アイデアが閃いたら考慮・企画書化・反省へ進めます。</p>
         </div>
       </div>
       <div id="project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -150,16 +150,13 @@
 
         <!-- Dynamic Consideration Form -->
         <div class="glass p-6 rounded-xl space-y-5 lg:col-span-2">
-          <!-- Fixed Title Input -->
           <div>
             <label class="block text-sm font-medium text-slate-300">自作ゲームのタイトル（仮）</label>
             <input type="text" id="myTitle" placeholder="開発プロジェクト名や仮題" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1 placeholder-slate-600">
           </div>
 
-          <!-- Dynamic Fields Container -->
           <div id="custom-fields-container" class="space-y-4"></div>
 
-          <!-- Add New Field Button -->
           <button onclick="addCustomField()" class="w-full py-2.5 border border-dashed border-slate-600 hover:border-blue-400 text-sm text-slate-400 hover:text-blue-400 rounded-lg transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-plus"></i> 新しい入力枠を追加
           </button>
@@ -205,6 +202,28 @@
         </div>
       </div>
     </section>
+
+    <!-- REFLECTION VIEW -->
+    <section id="view-reflection" class="hidden space-y-6 max-w-4xl mx-auto">
+      <div class="flex justify-between items-center bg-slate-800/60 p-4 rounded-xl border border-darkborder">
+        <div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded bg-amber-950 text-amber-400 border border-amber-800">POST-MORTEM</span>
+          <h2 class="text-xl font-bold mt-1 text-slate-100">企画・制作の反省と振り返り</h2>
+          <p id="reflection-project-title" class="text-xs text-slate-400 mt-0.5"></p>
+        </div>
+        <button onclick="saveReflection()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-bold rounded-lg transition flex items-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i> 反省を保存
+        </button>
+      </div>
+
+      <div class="glass p-6 rounded-xl space-y-6">
+        <div id="reflection-fields-container" class="space-y-4"></div>
+
+        <button onclick="addReflectionField()" class="w-full py-2.5 border border-dashed border-slate-600 hover:border-amber-400 text-sm text-slate-400 hover:text-amber-400 rounded-lg transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-plus"></i> 新しい反省枠を追加
+        </button>
+      </div>
+    </section>
   </main>
 
   <!-- Save Action Modal (Step 1) -->
@@ -243,6 +262,11 @@
       { id: 'f_constraints', label: '制約・作らないもの', value: '', placeholder: '開発規模を抑えるための制限事項' }
     ];
 
+    const defaultReflectionFields = [
+      { id: 'rf_spec', label: '企画書に対して', value: '', placeholder: '企画の精度、想定と違った点、仕様の考慮不足など' },
+      { id: 'rf_game', label: 'ゲームに対して', value: '', placeholder: '実際の面白さ、グラフィック・操作性、プレイヤーの反応など' }
+    ];
+
     function saveProjects() {
       localStorage.setItem('gcf_projects', JSON.stringify(projects));
     }
@@ -252,6 +276,7 @@
       document.getElementById('view-step1').classList.add('hidden');
       document.getElementById('view-step2').classList.add('hidden');
       document.getElementById('view-step3').classList.add('hidden');
+      document.getElementById('view-reflection').classList.add('hidden');
       document.getElementById('save-modal').classList.add('hidden');
       renderDashboard();
     }
@@ -269,11 +294,17 @@
       }
 
       projects.forEach(p => {
+        const hasReflection = p.reflectionFields && p.reflectionFields.some(f => f.value && f.value.trim() !== '');
+
         const statusBadge = p.status === 'completed' 
           ? '<span class="text-xs px-2.5 py-1 rounded bg-purple-950 text-purple-400 border border-purple-800">企画書完成</span>'
           : p.status === 'considering'
           ? '<span class="text-xs px-2.5 py-1 rounded bg-blue-950 text-blue-400 border border-blue-800">考慮中</span>'
           : '<span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700">未考慮（ストック）</span>';
+
+        const reflectionBadge = hasReflection
+          ? '<span class="text-xs px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800">反省あり</span>'
+          : '';
 
         const card = document.createElement('div');
         card.className = "glass p-5 rounded-xl space-y-4 hover:border-emerald-500/50 transition cursor-pointer flex flex-col justify-between";
@@ -281,14 +312,17 @@
           <div class="space-y-2">
             <div class="flex justify-between items-start">
               <h3 class="font-bold text-lg text-slate-100">${p.targetGameTitle || '無題の分析'}</h3>
-              ${statusBadge}
+              <div class="flex items-center gap-1.5">${reflectionBadge}${statusBadge}</div>
             </div>
             <p class="text-xs text-slate-400">自作名: <span class="text-slate-200 font-medium">${p.myTitle || '未設定'}</span></p>
           </div>
           <div class="flex justify-between items-center pt-3 border-t border-slate-800 text-xs">
             <span class="text-slate-500">${new Date(p.updatedAt).toLocaleDateString()}</span>
-            <div class="flex gap-2">
-              <button onclick="event.stopPropagation(); deleteProject('${p.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash"></i></button>
+            <div class="flex gap-1.5">
+              <button onclick="event.stopPropagation(); openReflection('${p.id}')" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 border border-amber-600/40 px-2.5 py-1.5 rounded-md font-semibold transition flex items-center gap-1">
+                <i class="fa-solid fa-pen-to-square"></i> 反省
+              </button>
+              <button onclick="event.stopPropagation(); deleteProject('${p.id}')" class="text-slate-500 hover:text-rose-400 p-1.5"><i class="fa-solid fa-trash"></i></button>
               <button onclick="event.stopPropagation(); openProject('${p.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-md font-semibold">開く</button>
             </div>
           </div>
@@ -306,6 +340,7 @@
         goodPoints: '', badPoints: '',
         myTitle: '',
         customFields: JSON.parse(JSON.stringify(defaultFields)),
+        reflectionFields: JSON.parse(JSON.stringify(defaultReflectionFields)),
         status: 'analyzed',
         updatedAt: Date.now()
       };
@@ -318,6 +353,7 @@
       currentId = id;
       const p = projects.find(x => x.id === id);
       if (!p.customFields) p.customFields = JSON.parse(JSON.stringify(defaultFields));
+      if (!p.reflectionFields) p.reflectionFields = JSON.parse(JSON.stringify(defaultReflectionFields));
 
       document.getElementById('targetGameTitle').value = p.targetGameTitle || '';
       document.getElementById('goodPoints').value = p.goodPoints || '';
@@ -466,6 +502,70 @@
       const p = projects.find(x => x.id === currentId);
       p.customFields.splice(index, 1);
       renderCustomFields();
+    }
+
+    /* Reflection Feature */
+    function openReflection(id) {
+      currentId = id;
+      const p = projects.find(x => x.id === id);
+      if (!p.reflectionFields) p.reflectionFields = JSON.parse(JSON.stringify(defaultReflectionFields));
+
+      document.getElementById('reflection-project-title').innerText = `対象: ${p.myTitle || p.targetGameTitle || '無題のプロジェクト'}`;
+      renderReflectionFields();
+
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-step1').classList.add('hidden');
+      document.getElementById('view-step2').classList.add('hidden');
+      document.getElementById('view-step3').classList.add('hidden');
+      document.getElementById('view-reflection').classList.remove('hidden');
+    }
+
+    function renderReflectionFields() {
+      const p = projects.find(x => x.id === currentId);
+      const container = document.getElementById('reflection-fields-container');
+      container.innerHTML = '';
+
+      p.reflectionFields.forEach((field, index) => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-900/60 p-4 rounded-lg border border-darkborder space-y-2 relative group";
+        div.innerHTML = `
+          <div class="flex justify-between items-center">
+            <input type="text" value="${field.label}" onchange="updateReflectionLabel(${index}, this.value)" placeholder="反省の項目名" class="bg-transparent font-bold text-sm text-amber-400 focus:outline-none border-b border-transparent focus:border-amber-500 placeholder-slate-600">
+            <button onclick="removeReflectionField(${index})" class="text-slate-600 hover:text-rose-400 text-xs p-1"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <textarea rows="3" onchange="updateReflectionValue(${index}, this.value)" placeholder="${field.placeholder || '振り返り・反省内容を記入'}" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-500 placeholder-slate-600">${field.value || ''}</textarea>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addReflectionField() {
+      const p = projects.find(x => x.id === currentId);
+      p.reflectionFields.push({ id: Date.now().toString(), label: '新しい反省項目', value: '', placeholder: '反省・改善点のメモ' });
+      renderReflectionFields();
+    }
+
+    function updateReflectionLabel(index, val) {
+      const p = projects.find(x => x.id === currentId);
+      p.reflectionFields[index].label = val;
+    }
+
+    function updateReflectionValue(index, val) {
+      const p = projects.find(x => x.id === currentId);
+      p.reflectionFields[index].value = val;
+    }
+
+    function removeReflectionField(index) {
+      const p = projects.find(x => x.id === currentId);
+      p.reflectionFields.splice(index, 1);
+      renderReflectionFields();
+    }
+
+    function saveReflection() {
+      const p = projects.find(x => x.id === currentId);
+      p.updatedAt = Date.now();
+      saveProjects();
+      showDashboard();
     }
 
     /* Step 3: Save & Render GDD */
