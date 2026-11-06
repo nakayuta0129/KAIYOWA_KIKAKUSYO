@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Concept Forge | インディゲーム企画思考整理ツール</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' },
+            darkbg: '#0f172a',
+            darkcard: '#1e293b',
+            darkborder: '#334155'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
+    .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Navigation -->
+  <nav class="glass sticky top-0 z-50 px-6 py-4 border-b border-darkborder flex justify-between items-center">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="showDashboard()">
+      <div class="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center text-slate-900 font-black text-xl">G</div>
+      <span class="font-bold text-lg tracking-wide text-emerald-400">Game Concept Forge</span>
+    </div>
+    <button onclick="createNewProject()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
+      <i class="fa-solid fa-plus"></i> 新しい分析を始める
+    </button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto w-full p-6 flex-grow">
+    
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="space-y-6">
+      <div class="flex justify-between items-end border-b border-darkborder pb-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-100">企画ストック・ダッシュボード</h1>
+          <p class="text-sm text-slate-400 mt-1">既存ゲームの分析をストックし、アイデアが閃いたらいつでも考慮・企画書化へ進めます。</p>
+        </div>
+      </div>
+      <div id="project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards inserted by JS -->
+      </div>
+    </section>
+
+    <!-- STEP 1: ANALYSIS VIEW -->
+    <section id="view-step1" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-800/60 p-4 rounded-xl border border-darkborder">
+        <div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">STEP 1</span>
+          <h2 class="text-xl font-bold mt-1 text-slate-100">既存ゲームの解剖＆分析</h2>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="saveStep1(false)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold rounded-lg transition">分析のみ保存</button>
+          <button onclick="saveStep1(true)" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-sm font-bold rounded-lg transition">保存して【STEP 2：考慮】へ進む <i class="fa-solid fa-arrow-right ml-1"></i></button>
+        </div>
+      </div>
+
+      <div class="glass p-5 rounded-xl space-y-4">
+        <label class="block text-sm font-medium text-slate-300">対象とする既存ゲーム名</label>
+        <input type="text" id="targetGameTitle" placeholder="例：Vampire Survivors, Slay the Spire など" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <!-- Caillois 4 Elements Board -->
+      <div class="space-y-2">
+        <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-emerald-400"></i> ロジェ・カイヨワ「遊びの4要素」分析
+          <span class="text-xs font-normal text-slate-400">（各要素の影響が強い順に上から並べてください）</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Agon -->
+          <div class="glass p-4 rounded-xl space-y-3 border-t-4 border-t-red-500">
+            <h4 class="font-bold text-red-400 flex justify-between">アゴン (競争・技術) <i class="fa-solid fa-trophy"></i></h4>
+            <div id="list-agon" class="space-y-2"></div>
+            <button onclick="addItem('agon')" class="w-full py-1.5 border border-dashed border-slate-600 hover:border-red-500 text-xs text-slate-400 hover:text-red-400 rounded-lg transition">+ 要素を追加</button>
+          </div>
+          <!-- Alea -->
+          <div class="glass p-4 rounded-xl space-y-3 border-t-4 border-t-amber-500">
+            <h4 class="font-bold text-amber-400 flex justify-between">アレア (運・偶然) <i class="fa-solid fa-dice"></i></h4>
+            <div id="list-alea" class="space-y-2"></div>
+            <button onclick="addItem('alea')" class="w-full py-1.5 border border-dashed border-slate-600 hover:border-amber-500 text-xs text-slate-400 hover:text-amber-400 rounded-lg transition">+ 要素を追加</button>
+          </div>
+          <!-- Mimicry -->
+          <div class="glass p-4 rounded-xl space-y-3 border-t-4 border-t-blue-500">
+            <h4 class="font-bold text-blue-400 flex justify-between">ミミクリ (模倣・世界観) <i class="fa-solid fa-masks-theater"></i></h4>
+            <div id="list-mimicry" class="space-y-2"></div>
+            <button onclick="addItem('mimicry')" class="w-full py-1.5 border border-dashed border-slate-600 hover:border-blue-500 text-xs text-slate-400 hover:text-blue-400 rounded-lg transition">+ 要素を追加</button>
+          </div>
+          <!-- Ilinx -->
+          <div class="glass p-4 rounded-xl space-y-3 border-t-4 border-t-purple-500">
+            <h4 class="font-bold text-purple-400 flex justify-between">イリンクス (スリル・快感) <i class="fa-solid fa-bolt"></i></h4>
+            <div id="list-ilinx" class="space-y-2"></div>
+            <button onclick="addItem('ilinx')" class="w-full py-1.5 border border-dashed border-slate-600 hover:border-purple-500 text-xs text-slate-400 hover:text-purple-400 rounded-lg transition">+ 要素を追加</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Good & Bad Points -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="glass p-5 rounded-xl space-y-3">
+          <h4 class="font-bold text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-thumbs-up"></i> 良いところ・残したい魅力</h4>
+          <textarea id="goodPoints" rows="4" placeholder="例：敵を一網打尽にする快感、操作がシンプルで誰でもすぐ遊べる点" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+        <div class="glass p-5 rounded-xl space-y-3">
+          <h4 class="font-bold text-rose-400 flex items-center gap-2"><i class="fa-solid fa-thumbs-down"></i> 不満点・足りないところ</h4>
+          <textarea id="badPoints" rows="4" placeholder="例：後半の展開が作業になりがち、運要素が強すぎて理不尽に負ける時がある" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: CONSIDERATION VIEW -->
+    <section id="view-step2" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-800/60 p-4 rounded-xl border border-darkborder">
+        <div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded bg-blue-950 text-blue-400 border border-blue-800">STEP 2</span>
+          <h2 class="text-xl font-bold mt-1 text-slate-100">自作ゲームへの設計・考慮</h2>
+        </div>
+        <button onclick="saveStep2()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-slate-950 text-sm font-bold rounded-lg transition">考慮完了【STEP 3：企画書作成】へ <i class="fa-solid fa-arrow-right ml-1"></i></button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Reference Column -->
+        <div class="glass p-5 rounded-xl space-y-4 lg:col-span-1 border-l-4 border-l-amber-500">
+          <h3 class="font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-bookmark"></i> 分析結果の参照</h3>
+          <div>
+            <span class="text-xs text-slate-400">対象ゲーム</span>
+            <p id="ref-targetTitle" class="font-bold text-slate-200"></p>
+          </div>
+          <div>
+            <span class="text-xs text-slate-400">抽出された不満点</span>
+            <p id="ref-badPoints" class="text-sm text-rose-300 bg-slate-900/80 p-3 rounded-lg border border-slate-800 mt-1 whitespace-pre-wrap"></p>
+          </div>
+          <div>
+            <span class="text-xs text-slate-400">残したい良いところ</span>
+            <p id="ref-goodPoints" class="text-sm text-emerald-300 bg-slate-900/80 p-3 rounded-lg border border-slate-800 mt-1 whitespace-pre-wrap"></p>
+          </div>
+        </div>
+
+        <!-- Consideration Form -->
+        <div class="glass p-6 rounded-xl space-y-5 lg:col-span-2">
+          <div>
+            <label class="block text-sm font-medium text-slate-300">自作ゲームのタイトル（仮）</label>
+            <input type="text" id="myTitle" placeholder="仮のタイトルを入力" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300">コア・コンセプト（誰が・何をして・なぜ面白いか）</label>
+            <input type="text" id="myConcept" placeholder="例：ハイスピードで敵を弾き返し、コンボを叩き込む爽快な一画面パズルアクション" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300">4要素のバランス調整方針</label>
+            <textarea id="elementChanges" rows="3" placeholder="例：元ネタのアレア（運）要素を減らし、アゴン（タイミング操作）の競技性を増やしてプレイヤースキルで勝てるようにする。" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 mt-1"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300">独自フック（不満点を解決する具体的な仕組み）</label>
+            <textarea id="hook" rows="3" placeholder="例：敵の弾をわざとジャストガードすることで自分のゲージが溜まり、画面全体の敵を一滅できるパリィシステムを追加。" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 mt-1"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300">制約・作らないもの（Not to do / スコープ制限）</label>
+            <input type="text" id="constraints" placeholder="例：3Dグラフィックは使わない / 1ステージ完結にする / 敵の種類は3つまで" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: SPEC OUTPUT VIEW -->
+    <section id="view-step3" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-800/60 p-4 rounded-xl border border-darkborder">
+        <div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded bg-purple-950 text-purple-400 border border-purple-800">STEP 3</span>
+          <h2 class="text-xl font-bold mt-1 text-slate-100">完成した企画書 (GDD)</h2>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="copyToClipboard()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-slate-100 text-sm font-bold rounded-lg transition flex items-center gap-2"><i class="fa-solid fa-copy"></i> テキストコピー</button>
+          <button onclick="showDashboard()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold rounded-lg transition">ダッシュボードへ戻る</button>
+        </div>
+      </div>
+
+      <!-- Printable Document -->
+      <div id="spec-sheet" class="glass p-8 rounded-xl border border-slate-700 space-y-8 max-w-4xl mx-auto bg-slate-900/90 shadow-2xl">
+        <div class="border-b border-slate-700 pb-6 flex justify-between items-start">
+          <div>
+            <span class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Game Design Document</span>
+            <h1 id="out-myTitle" class="text-3xl font-black text-slate-100 mt-1"></h1>
+            <p id="out-myConcept" class="text-lg text-slate-300 mt-2 font-medium italic border-l-2 border-emerald-500 pl-3 py-1"></p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-slate-800/40 p-4 rounded-lg border border-slate-800 space-y-2">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">元となった既存分析ゲーム</h4>
+            <p id="out-targetGame" class="font-bold text-slate-200"></p>
+          </div>
+          <div class="bg-slate-800/40 p-4 rounded-lg border border-slate-800 space-y-2">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">作らないもの（スコープ制約）</h4>
+            <p id="out-constraints" class="font-bold text-rose-300"></p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i> 差別化フック＆オリジナル要素</h3>
+          <p id="out-hook" class="text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-950 p-4 rounded-lg border border-slate-800"></p>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2"><i class="fa-solid fa-sliders text-blue-400"></i> ゲーム性（4要素）の調整方針</h3>
+          <p id="out-elementChanges" class="text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-950 p-4 rounded-lg border border-slate-800"></p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+          <div>
+            <h4 class="text-xs font-bold text-slate-400 mb-2">解決する不満点</h4>
+            <p id="out-badPoints" class="text-sm text-slate-400 whitespace-pre-wrap"></p>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-400 mb-2">引き継ぐ魅力</h4>
+            <p id="out-goodPoints" class="text-sm text-slate-400 whitespace-pre-wrap"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center py-6 text-xs text-slate-500 border-t border-darkborder">
+    Game Concept Forge &copy; 2026 - Indie Developer Tool
+  </footer>
+
+  <!-- Core JavaScript Logic -->
+  <script>
+    let projects = JSON.parse(localStorage.getItem('gcf_projects') || '[]');
+    let currentId = null;
+
+    function saveProjects() {
+      localStorage.setItem('gcf_projects', JSON.stringify(projects));
+    }
+
+    function showDashboard() {
+      document.getElementById('view-dashboard').classList.remove('hidden');
+      document.getElementById('view-step1').classList.add('hidden');
+      document.getElementById('view-step2').classList.add('hidden');
+      document.getElementById('view-step3').classList.add('hidden');
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const container = document.getElementById('project-list');
+      container.innerHTML = '';
+      if (projects.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 glass rounded-xl space-y-3">
+            <i class="fa-solid fa-folder-open text-4xl text-slate-600"></i>
+            <p class="text-slate-400">分析ストックがまだありません。「新しい分析を始める」から作成しましょう。</p>
+          </div>`;
+        return;
+      }
+
+      projects.forEach(p => {
+        const statusBadge = p.status === 'completed' 
+          ? '<span class="text-xs px-2.5 py-1 rounded bg-purple-950 text-purple-400 border border-purple-800">企画書完成</span>'
+          : p.status === 'considering'
+          ? '<span class="text-xs px-2.5 py-1 rounded bg-blue-950 text-blue-400 border border-blue-800">考慮中</span>'
+          : '<span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700">未考慮（ストック）</span>';
+
+        const card = document.createElement('div');
+        card.className = "glass p-5 rounded-xl space-y-4 hover:border-emerald-500/50 transition cursor-pointer flex flex-col justify-between";
+        card.innerHTML = `
+          <div class="space-y-2">
+            <div class="flex justify-between items-start">
+              <h3 class="font-bold text-lg text-slate-100">${p.targetGameTitle || '無題の分析'}</h3>
+              ${statusBadge}
+            </div>
+            <p class="text-xs text-slate-400">自作名: <span class="text-slate-200 font-medium">${p.myTitle || '未設定'}</span></p>
+          </div>
+          <div class="flex justify-between items-center pt-3 border-t border-slate-800 text-xs">
+            <span class="text-slate-500">${new Date(p.updatedAt).toLocaleDateString()}</span>
+            <div class="flex gap-2">
+              <button onclick="event.stopPropagation(); deleteProject('${p.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash"></i></button>
+              <button onclick="event.stopPropagation(); openProject('${p.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-md font-semibold">開く</button>
+            </div>
+          </div>
+        `;
+        card.onclick = () => openProject(p.id);
+        container.appendChild(card);
+      });
+    }
+
+    function createNewProject() {
+      const newProj = {
+        id: Date.now().toString(),
+        targetGameTitle: '',
+        agon: [], alea: [], mimicry: [], ilinx: [],
+        goodPoints: '', badPoints: '',
+        myTitle: '', myConcept: '', elementChanges: '', hook: '', constraints: '',
+        status: 'analyzed',
+        updatedAt: Date.now()
+      };
+      projects.unshift(newProj);
+      saveProjects();
+      openProject(newProj.id);
+    }
+
+    function openProject(id) {
+      currentId = id;
+      const p = projects.find(x => x.id === id);
+      document.getElementById('targetGameTitle').value = p.targetGameTitle || '';
+      document.getElementById('goodPoints').value = p.goodPoints || '';
+      document.getElementById('badPoints').value = p.badPoints || '';
+
+      ['agon', 'alea', 'mimicry', 'ilinx'].forEach(type => {
+        renderElementList(type, p[type] || []);
+      });
+
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-step1').classList.remove('hidden');
+    }
+
+    function renderElementList(type, items) {
+      const container = document.getElementById(`list-${type}`);
+      container.innerHTML = '';
+      items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-xs";
+        div.innerHTML = `
+          <span class="font-bold text-slate-500 w-4 text-center">${index + 1}</span>
+          <input type="text" value="${item}" onchange="updateItem('${type}', ${index}, this.value)" class="bg-transparent flex-grow text-slate-200 focus:outline-none">
+          <button onclick="removeItem('${type}', ${index})" class="text-slate-600 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addItem(type) {
+      const p = projects.find(x => x.id === currentId);
+      if (!p[type]) p[type] = [];
+      p[type].push('新規要素');
+      renderElementList(type, p[type]);
+    }
+
+    function updateItem(type, index, val) {
+      const p = projects.find(x => x.id === currentId);
+      p[type][index] = val;
+    }
+
+    function removeItem(type, index) {
+      const p = projects.find(x => x.id === currentId);
+      p[type].splice(index, 1);
+      renderElementList(type, p[type]);
+    }
+
+    function deleteProject(id) {
+      if (!confirm('このプロジェクトを削除しますか？')) return;
+      projects = projects.filter(x => x.id !== id);
+      saveProjects();
+      renderDashboard();
+    }
+
+    function saveStep1(goNext) {
+      const p = projects.find(x => x.id === currentId);
+      p.targetGameTitle = document.getElementById('targetGameTitle').value;
+      p.goodPoints = document.getElementById('goodPoints').value;
+      p.badPoints = document.getElementById('badPoints').value;
+      p.updatedAt = Date.now();
+      saveProjects();
+
+      if (goNext) {
+        document.getElementById('ref-targetTitle').innerText = p.targetGameTitle || '未設定';
+        document.getElementById('ref-badPoints').innerText = p.badPoints || '記入なし';
+        document.getElementById('ref-goodPoints').innerText = p.goodPoints || '記入なし';
+        
+        document.getElementById('myTitle').value = p.myTitle || '';
+        document.getElementById('myConcept').value = p.myConcept || '';
+        document.getElementById('elementChanges').value = p.elementChanges || '';
+        document.getElementById('hook').value = p.hook || '';
+        document.getElementById('constraints').value = p.constraints || '';
+
+        document.getElementById('view-step1').classList.add('hidden');
+        document.getElementById('view-step2').classList.remove('hidden');
+      } else {
+        showDashboard();
+      }
+    }
+
+    function saveStep2() {
+      const p = projects.find(x => x.id === currentId);
+      p.myTitle = document.getElementById('myTitle').value;
+      p.myConcept = document.getElementById('myConcept').value;
+      p.elementChanges = document.getElementById('elementChanges').value;
+      p.hook = document.getElementById('hook').value;
+      p.constraints = document.getElementById('constraints').value;
+      p.status = 'completed';
+      p.updatedAt = Date.now();
+      saveProjects();
+
+      // Render Step 3
+      document.getElementById('out-myTitle').innerText = p.myTitle || 'タイトル未定';
+      document.getElementById('out-myConcept').innerText = p.myConcept || 'コンセプト未記入';
+      document.getElementById('out-targetGame').innerText = p.targetGameTitle || '元ネタ未設定';
+      document.getElementById('out-constraints').innerText = p.constraints || '制約なし';
+      document.getElementById('out-hook').innerText = p.hook || '未記入';
+      document.getElementById('out-elementChanges').innerText = p.elementChanges || '未記入';
+      document.getElementById('out-badPoints').innerText = p.badPoints || '未記入';
+      document.getElementById('out-goodPoints').innerText = p.goodPoints || '未記入';
+
+      document.getElementById('view-step2').classList.add('hidden');
+      document.getElementById('view-step3').classList.remove('hidden');
+    }
+
+    function copyToClipboard() {
+      const p = projects.find(x => x.id === currentId);
+      const text = `【企画書】${p.myTitle}\n■ コンセプト:\n${p.myConcept}\n\n■ 独自フック:\n${p.hook}\n\n■ 4要素調整:\n${p.elementChanges}\n\n■ 制約:\n${p.constraints}`;
+      navigator.clipboard.writeText(text);
+      alert('クリップボードにコピーしました！');
+    }
+
+    // Initial Render
+    showDashboard();
+  </script>
+</body>
+</html>
