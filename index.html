@@ -12,7 +12,7 @@
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' },
+            brand: { 500: '#22c55e', 600: '#16a34a' },
             darkbg: '#0f172a',
             darkcard: '#1e293b',
             darkborder: '#334155'
@@ -24,6 +24,7 @@
   <style>
     body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
     .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    ::placeholder { color: #475569 !important; opacity: 1; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -31,7 +32,7 @@
   <!-- Navigation -->
   <nav class="glass sticky top-0 z-50 px-6 py-4 border-b border-darkborder flex justify-between items-center">
     <div class="flex items-center gap-3 cursor-pointer" onclick="showDashboard()">
-      <div class="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center text-slate-900 font-black text-xl">G</div>
+      <div class="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center text-slate-950 font-black text-xl">G</div>
       <span class="font-bold text-lg tracking-wide text-emerald-400">Game Concept Forge</span>
     </div>
     <button onclick="createNewProject()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
@@ -50,9 +51,7 @@
           <p class="text-sm text-slate-400 mt-1">既存ゲームの分析をストックし、アイデアが閃いたらいつでも考慮・企画書化へ進めます。</p>
         </div>
       </div>
-      <div id="project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Cards inserted by JS -->
-      </div>
+      <div id="project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
 
     <!-- STEP 1: ANALYSIS VIEW -->
@@ -62,22 +61,21 @@
           <span class="text-xs font-semibold px-2.5 py-1 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">STEP 1</span>
           <h2 class="text-xl font-bold mt-1 text-slate-100">既存ゲームの解剖＆分析</h2>
         </div>
-        <div class="flex gap-2">
-          <button onclick="saveStep1(false)" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold rounded-lg transition">分析のみ保存</button>
-          <button onclick="saveStep1(true)" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-sm font-bold rounded-lg transition">保存して【STEP 2：考慮】へ進む <i class="fa-solid fa-arrow-right ml-1"></i></button>
-        </div>
+        <button onclick="saveStep1()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-sm font-bold rounded-lg transition flex items-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i> 保存
+        </button>
       </div>
 
       <div class="glass p-5 rounded-xl space-y-4">
         <label class="block text-sm font-medium text-slate-300">対象とする既存ゲーム名</label>
-        <input type="text" id="targetGameTitle" placeholder="例：Vampire Survivors, Slay the Spire など" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500">
+        <input type="text" id="targetGameTitle" placeholder="分析対象のゲームタイトル" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-600">
       </div>
 
       <!-- Caillois 4 Elements Board -->
       <div class="space-y-2">
         <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
           <i class="fa-solid fa-layer-group text-emerald-400"></i> ロジェ・カイヨワ「遊びの4要素」分析
-          <span class="text-xs font-normal text-slate-400">（各要素の影響が強い順に上から並べてください）</span>
+          <span class="text-xs font-normal text-slate-400">（左端をつかんで上下並び替えが可能）</span>
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Agon -->
@@ -111,11 +109,11 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="glass p-5 rounded-xl space-y-3">
           <h4 class="font-bold text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-thumbs-up"></i> 良いところ・残したい魅力</h4>
-          <textarea id="goodPoints" rows="4" placeholder="例：敵を一網打尽にする快感、操作がシンプルで誰でもすぐ遊べる点" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+          <textarea id="goodPoints" rows="4" placeholder="評価点や引き継ぎたい仕様" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-600"></textarea>
         </div>
         <div class="glass p-5 rounded-xl space-y-3">
           <h4 class="font-bold text-rose-400 flex items-center gap-2"><i class="fa-solid fa-thumbs-down"></i> 不満点・足りないところ</h4>
-          <textarea id="badPoints" rows="4" placeholder="例：後半の展開が作業になりがち、運要素が強すぎて理不尽に負ける時がある" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+          <textarea id="badPoints" rows="4" placeholder="改善したい課題やストレス要素" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-600"></textarea>
         </div>
       </div>
     </section>
@@ -127,12 +125,14 @@
           <span class="text-xs font-semibold px-2.5 py-1 rounded bg-blue-950 text-blue-400 border border-blue-800">STEP 2</span>
           <h2 class="text-xl font-bold mt-1 text-slate-100">自作ゲームへの設計・考慮</h2>
         </div>
-        <button onclick="saveStep2()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-slate-950 text-sm font-bold rounded-lg transition">考慮完了【STEP 3：企画書作成】へ <i class="fa-solid fa-arrow-right ml-1"></i></button>
+        <button onclick="saveStep2()" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-slate-950 text-sm font-bold rounded-lg transition flex items-center gap-2">
+          考慮完了【STEP 3：企画書作成】へ <i class="fa-solid fa-arrow-right"></i>
+        </button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Reference Column -->
-        <div class="glass p-5 rounded-xl space-y-4 lg:col-span-1 border-l-4 border-l-amber-500">
+        <div class="glass p-5 rounded-xl space-y-4 lg:col-span-1 border-l-4 border-l-amber-500 h-fit">
           <h3 class="font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-bookmark"></i> 分析結果の参照</h3>
           <div>
             <span class="text-xs text-slate-400">対象ゲーム</span>
@@ -148,28 +148,21 @@
           </div>
         </div>
 
-        <!-- Consideration Form -->
+        <!-- Dynamic Consideration Form -->
         <div class="glass p-6 rounded-xl space-y-5 lg:col-span-2">
+          <!-- Fixed Title Input -->
           <div>
             <label class="block text-sm font-medium text-slate-300">自作ゲームのタイトル（仮）</label>
-            <input type="text" id="myTitle" placeholder="仮のタイトルを入力" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1">
+            <input type="text" id="myTitle" placeholder="開発プロジェクト名や仮題" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1 placeholder-slate-600">
           </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-300">コア・コンセプト（誰が・何をして・なぜ面白いか）</label>
-            <input type="text" id="myConcept" placeholder="例：ハイスピードで敵を弾き返し、コンボを叩き込む爽快な一画面パズルアクション" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-300">4要素のバランス調整方針</label>
-            <textarea id="elementChanges" rows="3" placeholder="例：元ネタのアレア（運）要素を減らし、アゴン（タイミング操作）の競技性を増やしてプレイヤースキルで勝てるようにする。" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 mt-1"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-300">独自フック（不満点を解決する具体的な仕組み）</label>
-            <textarea id="hook" rows="3" placeholder="例：敵の弾をわざとジャストガードすることで自分のゲージが溜まり、画面全体の敵を一滅できるパリィシステムを追加。" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 mt-1"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-300">制約・作らないもの（Not to do / スコープ制限）</label>
-            <input type="text" id="constraints" placeholder="例：3Dグラフィックは使わない / 1ステージ完結にする / 敵の種類は3つまで" class="w-full bg-slate-900 border border-darkborder rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-blue-500 mt-1">
-          </div>
+
+          <!-- Dynamic Fields Container -->
+          <div id="custom-fields-container" class="space-y-4"></div>
+
+          <!-- Add New Field Button -->
+          <button onclick="addCustomField()" class="w-full py-2.5 border border-dashed border-slate-600 hover:border-blue-400 text-sm text-slate-400 hover:text-blue-400 rounded-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> 新しい入力枠を追加
+          </button>
         </div>
       </div>
     </section>
@@ -187,36 +180,18 @@
         </div>
       </div>
 
-      <!-- Printable Document -->
       <div id="spec-sheet" class="glass p-8 rounded-xl border border-slate-700 space-y-8 max-w-4xl mx-auto bg-slate-900/90 shadow-2xl">
-        <div class="border-b border-slate-700 pb-6 flex justify-between items-start">
-          <div>
-            <span class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Game Design Document</span>
-            <h1 id="out-myTitle" class="text-3xl font-black text-slate-100 mt-1"></h1>
-            <p id="out-myConcept" class="text-lg text-slate-300 mt-2 font-medium italic border-l-2 border-emerald-500 pl-3 py-1"></p>
-          </div>
+        <div class="border-b border-slate-700 pb-6">
+          <span class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Game Design Document</span>
+          <h1 id="out-myTitle" class="text-3xl font-black text-slate-100 mt-1"></h1>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-slate-800/40 p-4 rounded-lg border border-slate-800 space-y-2">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">元となった既存分析ゲーム</h4>
-            <p id="out-targetGame" class="font-bold text-slate-200"></p>
-          </div>
-          <div class="bg-slate-800/40 p-4 rounded-lg border border-slate-800 space-y-2">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">作らないもの（スコープ制約）</h4>
-            <p id="out-constraints" class="font-bold text-rose-300"></p>
-          </div>
+        <div class="bg-slate-800/40 p-4 rounded-lg border border-slate-800">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">元となった分析対象ゲーム</h4>
+          <p id="out-targetGame" class="font-bold text-slate-200 mt-1"></p>
         </div>
 
-        <div class="space-y-4">
-          <h3 class="text-lg font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i> 差別化フック＆オリジナル要素</h3>
-          <p id="out-hook" class="text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-950 p-4 rounded-lg border border-slate-800"></p>
-        </div>
-
-        <div class="space-y-4">
-          <h3 class="text-lg font-bold text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2"><i class="fa-solid fa-sliders text-blue-400"></i> ゲーム性（4要素）の調整方針</h3>
-          <p id="out-elementChanges" class="text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-950 p-4 rounded-lg border border-slate-800"></p>
-        </div>
+        <div id="out-dynamic-fields" class="space-y-6"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
           <div>
@@ -232,14 +207,41 @@
     </section>
   </main>
 
+  <!-- Save Action Modal (Step 1) -->
+  <div id="save-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass p-6 rounded-xl max-w-md w-full space-y-5 border border-slate-700 shadow-2xl">
+      <div class="flex items-center gap-3 text-emerald-400">
+        <i class="fa-solid fa-circle-check text-2xl"></i>
+        <h3 class="text-lg font-bold text-slate-100">分析内容を保存しました</h3>
+      </div>
+      <p class="text-sm text-slate-300">続けて次のステップに進みますか？それとも終了してホーム画面に戻りますか？</p>
+      <div class="space-y-2 pt-2">
+        <button onclick="modalGoStep2()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-lg text-sm transition flex items-center justify-center gap-2">
+          【STEP 2：考慮】へ進む <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button onclick="modalGoHome()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-lg text-sm transition border border-slate-700">
+          終了してホーム画面に戻る
+        </button>
+      </div>
+    </div>
+  </div>
+
   <footer class="text-center py-6 text-xs text-slate-500 border-t border-darkborder">
     Game Concept Forge &copy; 2026 - Indie Developer Tool
   </footer>
 
-  <!-- Core JavaScript Logic -->
   <script>
     let projects = JSON.parse(localStorage.getItem('gcf_projects') || '[]');
     let currentId = null;
+    let dragSrcType = null;
+    let dragSrcIndex = null;
+
+    const defaultFields = [
+      { id: 'f_concept', label: 'コア・コンセプト', value: '', placeholder: 'ゲームの核となる体験や概要' },
+      { id: 'f_changes', label: '4要素のバランス調整方針', value: '', placeholder: 'カイヨワ4要素の増減や配分方針' },
+      { id: 'f_hook', label: '独自フック（改善の仕掛け）', value: '', placeholder: '不満点を解決するための独自の仕組み' },
+      { id: 'f_constraints', label: '制約・作らないもの', value: '', placeholder: '開発規模を抑えるための制限事項' }
+    ];
 
     function saveProjects() {
       localStorage.setItem('gcf_projects', JSON.stringify(projects));
@@ -250,6 +252,7 @@
       document.getElementById('view-step1').classList.add('hidden');
       document.getElementById('view-step2').classList.add('hidden');
       document.getElementById('view-step3').classList.add('hidden');
+      document.getElementById('save-modal').classList.add('hidden');
       renderDashboard();
     }
 
@@ -301,7 +304,8 @@
         targetGameTitle: '',
         agon: [], alea: [], mimicry: [], ilinx: [],
         goodPoints: '', badPoints: '',
-        myTitle: '', myConcept: '', elementChanges: '', hook: '', constraints: '',
+        myTitle: '',
+        customFields: JSON.parse(JSON.stringify(defaultFields)),
         status: 'analyzed',
         updatedAt: Date.now()
       };
@@ -313,6 +317,8 @@
     function openProject(id) {
       currentId = id;
       const p = projects.find(x => x.id === id);
+      if (!p.customFields) p.customFields = JSON.parse(JSON.stringify(defaultFields));
+
       document.getElementById('targetGameTitle').value = p.targetGameTitle || '';
       document.getElementById('goodPoints').value = p.goodPoints || '';
       document.getElementById('badPoints').value = p.badPoints || '';
@@ -325,25 +331,49 @@
       document.getElementById('view-step1').classList.remove('hidden');
     }
 
+    /* Step 1: Caillois List & Drag and Drop */
     function renderElementList(type, items) {
       const container = document.getElementById(`list-${type}`);
       container.innerHTML = '';
       items.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = "flex items-center gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-xs";
+        div.draggable = true;
+        div.className = "flex items-center gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-xs transition";
+        
+        div.ondragstart = (e) => handleDragStart(e, type, index);
+        div.ondragover = (e) => e.preventDefault();
+        div.ondrop = (e) => handleDrop(e, type, index);
+
         div.innerHTML = `
-          <span class="font-bold text-slate-500 w-4 text-center">${index + 1}</span>
-          <input type="text" value="${item}" onchange="updateItem('${type}', ${index}, this.value)" class="bg-transparent flex-grow text-slate-200 focus:outline-none">
+          <i class="fa-solid fa-grip-vertical text-slate-600 cursor-grab hover:text-slate-400"></i>
+          <span class="font-bold text-slate-500 text-[10px]">${index + 1}</span>
+          <input type="text" value="${item}" placeholder="要素名を入力" onchange="updateItem('${type}', ${index}, this.value)" class="bg-transparent flex-grow text-slate-200 focus:outline-none placeholder-slate-600">
           <button onclick="removeItem('${type}', ${index})" class="text-slate-600 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
         `;
         container.appendChild(div);
       });
     }
 
+    function handleDragStart(e, type, index) {
+      dragSrcType = type;
+      dragSrcIndex = index;
+    }
+
+    function handleDrop(e, targetType, targetIndex) {
+      e.preventDefault();
+      if (dragSrcType === targetType && dragSrcIndex !== targetIndex) {
+        const p = projects.find(x => x.id === currentId);
+        const item = p[targetType].splice(dragSrcIndex, 1)[0];
+        p[targetType].splice(targetIndex, 0, item);
+        saveProjects();
+        renderElementList(targetType, p[targetType]);
+      }
+    }
+
     function addItem(type) {
       const p = projects.find(x => x.id === currentId);
       if (!p[type]) p[type] = [];
-      p[type].push('新規要素');
+      p[type].push('');
       renderElementList(type, p[type]);
     }
 
@@ -365,52 +395,107 @@
       renderDashboard();
     }
 
-    function saveStep1(goNext) {
+    /* Save Logic & Modal */
+    function saveStep1() {
       const p = projects.find(x => x.id === currentId);
       p.targetGameTitle = document.getElementById('targetGameTitle').value;
       p.goodPoints = document.getElementById('goodPoints').value;
       p.badPoints = document.getElementById('badPoints').value;
       p.updatedAt = Date.now();
       saveProjects();
-
-      if (goNext) {
-        document.getElementById('ref-targetTitle').innerText = p.targetGameTitle || '未設定';
-        document.getElementById('ref-badPoints').innerText = p.badPoints || '記入なし';
-        document.getElementById('ref-goodPoints').innerText = p.goodPoints || '記入なし';
-        
-        document.getElementById('myTitle').value = p.myTitle || '';
-        document.getElementById('myConcept').value = p.myConcept || '';
-        document.getElementById('elementChanges').value = p.elementChanges || '';
-        document.getElementById('hook').value = p.hook || '';
-        document.getElementById('constraints').value = p.constraints || '';
-
-        document.getElementById('view-step1').classList.add('hidden');
-        document.getElementById('view-step2').classList.remove('hidden');
-      } else {
-        showDashboard();
-      }
+      document.getElementById('save-modal').classList.remove('hidden');
     }
 
+    function modalGoStep2() {
+      document.getElementById('save-modal').classList.add('hidden');
+      const p = projects.find(x => x.id === currentId);
+      
+      document.getElementById('ref-targetTitle').innerText = p.targetGameTitle || '未設定';
+      document.getElementById('ref-badPoints').innerText = p.badPoints || '記入なし';
+      document.getElementById('ref-goodPoints').innerText = p.goodPoints || '記入なし';
+      document.getElementById('myTitle').value = p.myTitle || '';
+
+      renderCustomFields();
+
+      document.getElementById('view-step1').classList.add('hidden');
+      document.getElementById('view-step2').classList.remove('hidden');
+    }
+
+    function modalGoHome() {
+      document.getElementById('save-modal').classList.add('hidden');
+      showDashboard();
+    }
+
+    /* Step 2: Dynamic Custom Fields */
+    function renderCustomFields() {
+      const p = projects.find(x => x.id === currentId);
+      const container = document.getElementById('custom-fields-container');
+      container.innerHTML = '';
+
+      p.customFields.forEach((field, index) => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-900/60 p-4 rounded-lg border border-darkborder space-y-2 relative group";
+        div.innerHTML = `
+          <div class="flex justify-between items-center">
+            <input type="text" value="${field.label}" onchange="updateFieldLabel(${index}, this.value)" placeholder="項目名" class="bg-transparent font-medium text-sm text-slate-300 focus:outline-none border-b border-transparent focus:border-blue-500 placeholder-slate-600">
+            <button onclick="removeCustomField(${index})" class="text-slate-600 hover:text-rose-400 text-xs p-1"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <textarea rows="3" onchange="updateFieldValue(${index}, this.value)" placeholder="${field.placeholder || '内容を入力'}" class="w-full bg-slate-900 border border-darkborder rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 placeholder-slate-600">${field.value || ''}</textarea>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addCustomField() {
+      const p = projects.find(x => x.id === currentId);
+      p.customFields.push({ id: Date.now().toString(), label: '新しい項目', value: '', placeholder: '詳細な内容を記入' });
+      renderCustomFields();
+    }
+
+    function updateFieldLabel(index, val) {
+      const p = projects.find(x => x.id === currentId);
+      p.customFields[index].label = val;
+    }
+
+    function updateFieldValue(index, val) {
+      const p = projects.find(x => x.id === currentId);
+      p.customFields[index].value = val;
+    }
+
+    function removeCustomField(index) {
+      const p = projects.find(x => x.id === currentId);
+      p.customFields.splice(index, 1);
+      renderCustomFields();
+    }
+
+    /* Step 3: Save & Render GDD */
     function saveStep2() {
       const p = projects.find(x => x.id === currentId);
       p.myTitle = document.getElementById('myTitle').value;
-      p.myConcept = document.getElementById('myConcept').value;
-      p.elementChanges = document.getElementById('elementChanges').value;
-      p.hook = document.getElementById('hook').value;
-      p.constraints = document.getElementById('constraints').value;
       p.status = 'completed';
       p.updatedAt = Date.now();
       saveProjects();
 
       // Render Step 3
       document.getElementById('out-myTitle').innerText = p.myTitle || 'タイトル未定';
-      document.getElementById('out-myConcept').innerText = p.myConcept || 'コンセプト未記入';
-      document.getElementById('out-targetGame').innerText = p.targetGameTitle || '元ネタ未設定';
-      document.getElementById('out-constraints').innerText = p.constraints || '制約なし';
-      document.getElementById('out-hook').innerText = p.hook || '未記入';
-      document.getElementById('out-elementChanges').innerText = p.elementChanges || '未記入';
+      document.getElementById('out-targetGame').innerText = p.targetGameTitle || '未指定';
       document.getElementById('out-badPoints').innerText = p.badPoints || '未記入';
       document.getElementById('out-goodPoints').innerText = p.goodPoints || '未記入';
+
+      const outDynamic = document.getElementById('out-dynamic-fields');
+      outDynamic.innerHTML = '';
+      p.customFields.forEach(f => {
+        if (!f.value && !f.label) return;
+        const div = document.createElement('div');
+        div.className = "space-y-2";
+        div.innerHTML = `
+          <h3 class="text-md font-bold text-slate-200 border-b border-slate-800 pb-1 flex items-center gap-2">
+            <i class="fa-solid fa-square-check text-emerald-400 text-xs"></i> ${f.label || '無題の項目'}
+          </h3>
+          <p class="text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-950 p-4 rounded-lg border border-slate-800 text-sm">${f.value || '（未記入）'}</p>
+        `;
+        outDynamic.appendChild(div);
+      });
 
       document.getElementById('view-step2').classList.add('hidden');
       document.getElementById('view-step3').classList.remove('hidden');
@@ -418,12 +503,15 @@
 
     function copyToClipboard() {
       const p = projects.find(x => x.id === currentId);
-      const text = `【企画書】${p.myTitle}\n■ コンセプト:\n${p.myConcept}\n\n■ 独自フック:\n${p.hook}\n\n■ 4要素調整:\n${p.elementChanges}\n\n■ 制約:\n${p.constraints}`;
+      let text = `【企画書】${p.myTitle || '無題'}\n■ 対象分析ゲーム: ${p.targetGameTitle}\n\n`;
+      p.customFields.forEach(f => {
+        text += `■ ${f.label}:\n${f.value}\n\n`;
+      });
       navigator.clipboard.writeText(text);
       alert('クリップボードにコピーしました！');
     }
 
-    // Initial Render
+    // Initial Dashboard
     showDashboard();
   </script>
 </body>
